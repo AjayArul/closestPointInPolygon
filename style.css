@@ -6,6 +6,7 @@ h1,
 h2 {
   font-family: Lato;
 }
-body {
-  background-color: black;
+
+canvas {
+  background-color: rebeccapurple;
 }
