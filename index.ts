@@ -1,3 +1,12 @@
+import {
+  getWindingNumber,
+  toEdgeList,
+  isPointOnSegment,
+  isProjectionOnSegment,
+  getProjectedPointOnSegment,
+  getDistance,
+} from './lib';
+
 // Import stylesheets
 import './style.css';
 
@@ -63,6 +72,13 @@ function polygonsRender() {
     ctx.stroke();
 
     // Draw the closest point on each polygon
+    if (point) {
+      const projection = closestPointInPolygon(poly, point);
+      ctx.beginPath();
+      ctx.arc(projection.x, projection.y, 2, 0, 2 * Math.PI, false);
+      ctx.fillStyle = '#fff';
+      ctx.fill();
+    }
   });
 
   // Draw the point
@@ -98,8 +114,38 @@ canvas.onmousemove = function (e) {
 
 function closestPointInPolygon(poly: Point[], pos: Point): Point {
   // This function should return the closest point to
-
   // "pos" that is inside the polygon defined by "poly"
-  
 
+  const closestPointOnEdge = toEdgeList(poly)
+    .filter((edge) => isProjectionOnSegment(pos, edge))
+    .reduce(
+      ([_pp, minDistance], edge) => {
+        // Get the projected point on this edge
+        const pp = getProjectedPointOnSegment(edge, pos);
+        // Get the distance from the edge
+        const distance = getDistance(pos, pp);
+        // Return this projection if the distance is smaller
+        return distance < minDistance ? [pp, distance] : [_pp, minDistance];
+      },
+      [undefined, Infinity] as [Point | undefined, number]
+    )[0];
+
+  const closestVertex = poly.reduce(
+    ([closestVertex, minDistance], vertex) => {
+      // Get distance from vertex to target
+      const distance = getDistance(vertex, pos);
+      // Return this vertex if the distance is smaller
+      return distance < minDistance
+        ? [vertex, distance]
+        : [closestVertex, minDistance];
+    },
+    [undefined, Infinity] as [Point | undefined, number]
+  )[0];
+  if (!closestPointOnEdge) {
+    return closestVertex;
+  } 
+
+  return getDistance(pos, closestPointOnEdge) < getDistance(pos, closestVertex)
+    ? closestPointOnEdge
+    : closestVertex;
 }

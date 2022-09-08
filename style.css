@@ -1,12 +1,8 @@
-body {
-  background-color: black;
-}
-
 h1,
 h2 {
   font-family: Lato;
 }
 
 canvas {
-  background-color: rebeccapurple;
+  background-color: black;
 }
